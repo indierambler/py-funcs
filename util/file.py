@@ -15,19 +15,19 @@ def write_json(dictionary, path):
         json.dump(dictionary, j)
 
 
-def append(path, text):
+def append_text(path, text):
     # a+ = open file and add to end or create if not exist
     with open(path, 'a+') as f:
         f.write(text)
 
 
-def write(path, text):
+def overwrite_text(path, text):
     # w+ = open file and overwrite contents or create if not exist
     with open(path, 'w+') as f:
         f.write(text)
 
 
-def read(path, verbose=False):
+def read_text(path, verbose=False):
     try:
         # get all text from file
         with open(path, 'rt') as f:
