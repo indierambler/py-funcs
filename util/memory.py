@@ -67,3 +67,28 @@ def convert_bytes(b):
     else:  # over 1TB
         label = f'{round(b/(1024*1024*1024*1024),3)}TB'
     return label
+
+
+def obj_size(obj):
+    """Get the memory size of any object in bytes"""
+    marked = {id(obj)}
+    obj_q = [obj]
+    sz = 0
+
+    while obj_q:
+        sz += sum(map(sys.getsizeof, obj_q))
+
+        # Lookup all the objects referred to in obj_q.
+        all_refr = ((id(o), o) for o in gc.get_referents(*obj_q))
+
+        # Ignore objects that are already marked.
+        # Using dict notation will prevent repeated objects.
+        new_refr = {o_id: o for o_id, o in all_refr if o_id not in marked and not isinstance(o, type)}
+
+        # The new obj_q will be the ones that were not marked,
+        # and we will update marked with their ids so we will
+        # not traverse them again.
+        obj_q = new_refr.values()
+        marked.update(new_refr.keys())
+
+    return sz
