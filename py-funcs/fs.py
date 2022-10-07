@@ -60,6 +60,20 @@ def get_files(directory, ext=''):
     return files
 
 
+def get_structure(directory):
+    """Return all contents of a directory as a dictionary hierarchy
+    """
+    struct = {}
+    contents = os.listdir(directory)  # list all contents in the directory
+    for i in contents:
+        path = os.path.join(directory, i)
+        if os.path.isfile(path):
+            struct[i] = {}
+        elif os.path.isdir(path):
+            struct[i] = get_structure(path)
+    return struct
+
+
 def random_file(directory, ext=None):
     """ Choose a random file (with a given extension)
         from a directory and return the path as a string
