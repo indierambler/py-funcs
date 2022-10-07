@@ -2,7 +2,22 @@
 import numpy as np
 import pandas as pd
 
-# List column functions
+# Functions
+def pack(df):
+    pass
+
+
+def unpack(df):
+    def xform(val):
+        if isinstance(val, str) and val[0] == '[' and val[-1] == ']':
+            return eval(val)
+        elif isinstance(val, np.ndarray):
+            return list(val)
+        else:
+            return val
+    return df.applymap(xform)
+
+
 def search(vals, series):
     """Search a column of lists for each value in an input list and return all indices where it was found"""
     indices = []
@@ -23,10 +38,26 @@ def get_df_with_vals(vals, search_col, df):
     return df[df.index.isin(indices)]
 
 
-def value_counts(series):
+def value_counts(series, val=None):
     """Get the value counts of each value in a column of lists"""
     s = series.explode(ignore_index=True)
-    return s.value_counts()
+    if val:
+        if val in s.value_counts():
+            return s.value_counts()[val]
+        else:
+            return 0
+    else:
+        return s.value_counts()
+
+
+def value_pcts(series, listcol=False):
+    """Get the value counts in a series as a percentage distribution"""
+    length = len(series)
+    if listcol:
+        pcts = {k: round(v/length, 3) for k,v in dict(value_counts(series)).items()}
+    else:
+        pcts = {k: round(v/length, 3) for k,v in dict(series.value_counts()).items()}
+    return pcts
 
 
 def unique(series):
@@ -54,9 +85,10 @@ def exclusive_members(vals, series):
 def exclusive_counts(vals, series):
     members = exclusive_members(vals, series)
     members = {k: len(v) for k,v in members.items()}
-    sorted_keys = sorted(members, key=members.get, reverse=True)
-    for k in sorted_keys:
-        print(f'{k}: {members[k]}')
+    #sorted_keys = sorted(members, key=members.get, reverse=True)
+    #for k in sorted_keys:
+    #    print(f'{k}: {members[k]}')
+    return pd.DataFrame(members, index=['exclusives']).T
 
 
 def replace(old, new, series, *args, **kwargs):
