@@ -1,5 +1,5 @@
 # Import dependencies
-#
+import numpy as np
 
 # Functions
 def get_path(key, dictionary):
@@ -26,3 +26,40 @@ def flatten(dictionary):
         if v:  # check if there are keys in the next level
             flat.extend(flatten(dictionary[k]))
     return flat
+
+
+def keys_to_str(d):
+    """Convert all the keys in a dict to string type (usually so that it can be serialized)"""
+    new = {}
+    for key, val in d.items():
+        if isinstance(val, dict):
+            new[str(key)] = keys_to_str(val)
+        else:
+            new[str(key)] = val
+    return new
+
+
+def print_val_types(d):
+    """Print all of the keys in a dict with their datatypes (mainly for debugging)"""
+    for key, val in d.items():
+        if isinstance(val, dict):
+            print_val_types(val)
+        else:
+            print(f'{key}: {type(val)}')
+
+
+def convert_numpy_vals(d):
+    """Convert all numpy types in a dict to python types (usually so that it can be serialized)"""
+    new = {}
+    for key, val in d.items():
+        if isinstance(val, dict):
+            new[key] = convert_numpy_vals(val)
+        elif isinstance(val, (np.integer)):
+            new[key] = int(val)
+        elif isinstance(val, (np.inexact)):
+            new[key] = float(val)
+        elif isinstance(val, np.ndarray):
+            new[key] = list(val)
+        else:
+            new[key] = val
+    return new
